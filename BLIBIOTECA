@@ -1,0 +1,295 @@
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.Scanner;
+
+
+class Libro {
+    String titulo;
+    String autor;
+    String codigo;
+    boolean disponible;
+
+    public Libro(String titulo, String autor, String codigo) {
+        this.titulo = titulo;
+        this.autor = autor;
+        this.codigo = codigo;
+        this.disponible = true; // Un libro nuevo siempre está disponible
+    }
+
+    public void mostrarDatos() {
+        System.out.println("Título: " + titulo + ", Autor: " + autor + ", Código: " + codigo + ", Disponible: " + (disponible ? "Sí" : "No"));
+    }
+
+    public void marcarPrestado() {
+        this.disponible = false;
+    }
+
+    public void marcarDisponible() {
+        this.disponible = true;
+    }
+}
+
+
+class Usuario {
+    String nombre;
+    String idUsuario;
+    ArrayList<Libro> librosPrestados;
+
+    public Usuario(String nombre, String idUsuario) {
+        this.nombre = nombre;
+        this.idUsuario = idUsuario;
+        this.librosPrestados = new ArrayList<>();
+    }
+
+    public void mostrarDatos() {
+        System.out.println("Nombre: " + nombre + ", ID: " + idUsuario);
+        if (librosPrestados.isEmpty()) {
+            System.out.println("  No tiene libros prestados.");
+        } else {
+            System.out.println("  Libros prestados:");
+for (Libro libro : librosPrestados) {
+                System.out.println("    - " + libro.titulo);
+            }
+        }
+    }
+
+    public void agregarPrestamo(Libro libro) {
+        librosPrestados.add(libro);
+    }
+
+    public void devolverLibro(Libro libro) {
+        librosPrestados.remove(libro);
+    }
+}
+
+
+class Prestamo {
+    Libro libro;
+    Usuario usuario;
+    LocalDate fechaInicio;
+    LocalDate fechaLimite;
+
+    public Prestamo(Libro libro, Usuario usuario) {
+        this.libro = libro;
+        this.usuario = usuario;
+        this.fechaInicio = LocalDate.now();
+        this.fechaLimite = this.fechaInicio.plusDays(7); // Límite de 7 días para devolver
+    }
+
+    public void mostrarDatos() {
+        System.out.println("Usuario: " + usuario.nombre + ", Libro: " + libro.titulo +
+                           ", Fecha de Préstamo: " + fechaInicio + ", Fecha Límite: " + fechaLimite);
+    }
+}
+
+
+
+class Biblioteca {
+    ArrayList<Libro> listaLibros;
+    ArrayList<Usuario> listaUsuarios;
+    ArrayList<Prestamo> registroPrestamos;
+
+    public Biblioteca() {
+        this.listaLibros = new ArrayList<>();
+        this.listaUsuarios = new ArrayList<>();
+        this.registroPrestamos = new ArrayList<>();
+    }
+
+    public void registrarLibro(Scanner scanner) {
+        System.out.print("Ingrese título del libro: ");
+        String titulo = scanner.nextLine();
+        System.out.print("Ingrese autor del libro: ");
+        String autor = scanner.nextLine();
+        System.out.print("Ingrese código del libro: ");
+        String codigo = scanner.nextLine();
+        listaLibros.add(new Libro(titulo, autor, codigo));
+        System.out.println(" Libro registrado con éxito.");
+    }
+public void registrarUsuario(Scanner scanner) {
+        System.out.print("Ingrese nombre del usuario: ");
+        String nombre = scanner.nextLine();
+        System.out.print("Ingrese ID del usuario: ");
+        String id = scanner.nextLine();
+        listaUsuarios.add(new Usuario(nombre, id));
+        System.out.println(" Usuario registrado con éxito.");
+    }
+
+    public void prestarLibro(Scanner scanner) {
+        System.out.print("Ingrese el ID del usuario: ");
+        String idUsuario = scanner.nextLine();
+        Usuario usuario = buscarUsuario(idUsuario);
+
+        if (usuario == null) {
+            System.out.println(" Error: Usuario no encontrado.");
+            return;
+        }
+
+        if (usuario.librosPrestados.size() >= 3) {
+            System.out.println(" Error: El usuario ya tiene el máximo de 3 libros prestados.");
+            return;
+        }
+
+        System.out.print("Ingrese el código del libro: ");
+        String codigoLibro = scanner.nextLine();
+        Libro libro = buscarLibro(codigoLibro);
+
+        if (libro == null) {
+            System.out.println("Error: Libro no encontrado.");
+            return;
+        }
+
+        if (!libro.disponible) {
+            System.out.println(" Error: El libro no está disponible.");
+            return;
+        }
+
+        libro.marcarPrestado();
+        usuario.agregarPrestamo(libro);
+        registroPrestamos.add(new Prestamo(libro, usuario));
+        System.out.println(" Préstamo realizado con éxito.");
+    }
+
+    public void devolverLibro(Scanner scanner) {
+        System.out.print("Ingrese el código del libro a devolver: ");
+        String codigoLibro = scanner.nextLine();
+
+        Prestamo prestamoActivo = null;
+        for (Prestamo p : registroPrestamos) {
+            if (p.libro.codigo.equals(codigoLibro) && p.libro.disponible == false) {
+prestamoActivo = p;
+                break;
+            }
+        }
+
+        if (prestamoActivo == null) {
+            System.out.println(" Error: No se encontró un préstamo activo para este libro.");
+            return;
+        }
+
+        LocalDate fechaDevolucion = LocalDate.now();
+        long diasRetraso = ChronoUnit.DAYS.between(prestamoActivo.fechaLimite, fechaDevolucion);
+
+        if (diasRetraso > 0) {
+            long multa = diasRetraso * 500;
+            System.out.println(" Libro devuelto con " + diasRetraso + " días de retraso. Multa: $" + multa);
+        } else {
+            System.out.println(" Libro devuelto a tiempo.");
+        }
+
+        prestamoActivo.libro.marcarDisponible();
+        prestamoActivo.usuario.devolverLibro(prestamoActivo.libro);
+
+
+    }
+
+    public void mostrarLibrosDisponibles() {
+        System.out.println("\n--- Libros Disponibles ---");
+        for (Libro libro : listaLibros) {
+            if (libro.disponible) {
+                libro.mostrarDatos();
+            }
+        }
+        System.out.println("--------------------------");
+    }
+
+    public void mostrarUsuarios() {
+        System.out.println("\n--- Lista de Usuarios ---");
+        for (Usuario usuario : listaUsuarios) {
+            usuario.mostrarDatos();
+        }
+        System.out.println("-------------------------");
+    }
+
+    public void mostrarHistorialPrestamos() {
+        System.out.println("\n--- Historial de Préstamos ---");
+        for (Prestamo prestamo : registroPrestamos) {
+            prestamo.mostrarDatos();
+        }
+        System.out.println("------------------------------");
+}
+
+
+    private Libro buscarLibro(String codigo) {
+        for (Libro libro : listaLibros) {
+            if (libro.codigo.equals(codigo)) {
+                return libro;
+            }
+        }
+        return null;
+    }
+
+    private Usuario buscarUsuario(String id) {
+        for (Usuario usuario : listaUsuarios) {
+            if (usuario.idUsuario.equals(id)) {
+                return usuario;
+            }
+        }
+        return null;
+    }
+}
+
+
+public class Main {
+    public static void main(String[] args) {
+        Biblioteca miBiblioteca = new Biblioteca();
+        Scanner scanner = new Scanner(System.in);
+        int opcion = 0;
+
+
+        miBiblioteca.listaLibros.add(new Libro("Cien Años de Soledad", "Gabriel García Márquez", "L001"));
+        miBiblioteca.listaLibros.add(new Libro("El Señor de los Anillos", "J.R.R. Tolkien", "L002"));
+        miBiblioteca.listaUsuarios.add(new Usuario("Ana López", "U01"));
+        miBiblioteca.listaUsuarios.add(new Usuario("Carlos Ruiz", "U02"));
+
+        do {
+            System.out.println("\n---  MENÚ BIBLIOTECA  ---");
+            System.out.println("1. Registrar Libro");
+            System.out.println("2. Registrar Usuario");
+            System.out.println("3. Prestar Libro");
+System.out.println("4. Devolver Libro");
+            System.out.println("5. Mostrar Libros Disponibles");
+            System.out.println("6. Mostrar Usuarios");
+            System.out.println("7. Mostrar Historial de Préstamos");
+            System.out.println("8. Salir");
+            System.out.print("Seleccione una opción: ");
+
+            try {
+                opcion = Integer.parseInt(scanner.nextLine());
+
+                switch (opcion) {
+                    case 1:
+                        miBiblioteca.registrarLibro(scanner);
+                        break;
+                    case 2:
+                        miBiblioteca.registrarUsuario(scanner);
+                        break;
+                    case 3:
+                        miBiblioteca.prestarLibro(scanner);
+                        break;
+                    case 4:
+                        miBiblioteca.devolverLibro(scanner);
+                        break;
+                    case 5:
+                        miBiblioteca.mostrarLibrosDisponibles();
+                        break;
+                    case 6:
+                        miBiblioteca.mostrarUsuarios();
+                        break;
+                    case 7:
+                        miBiblioteca.mostrarHistorialPrestamos();
+                        break;
+                    case 8:
+                        System.out.println(" Saliendo del sistema...");
+                        break;
+                    default:
+                        System.out.println(" Opción no válida. Intente de nuevo.");
+                }
+            } catch (NumberFormatException e) {
+                System.out.println(" Error: Por favor, ingrese un número.");
+            }
+        } while (opcion != 8);
+
+        scanner.close();
+    }
+}
