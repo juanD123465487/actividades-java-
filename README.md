@@ -1,2 +1,2 @@
 # actividades-java-
-se crearon dos simulaciones practicando java 
+se crean simulaciones practicando java 
