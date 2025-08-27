@@ -74,7 +74,7 @@ public class Historia {
        @Override
        protected void mostrarHabilidad() {
            
-           System.out.println("El guerrero " + nombre + " del mundo"+ mundo + " con los rasgos" + rasgos + " tiene la habilidad especial de: " + getHabilidadAleatoria());
+           System.out.println("El guerrero " + nombre + " del mundo "+ mundo + " con los rasgos " + rasgos + " tiene la habilidad especial de: " + getHabilidadAleatoria());
            
           
        }
@@ -111,3 +111,4 @@ class Main {
 
 
     
+
