@@ -83,8 +83,8 @@ class InventorSoftware extends Inventor {
         System.out.println("Programé esta aplicación en " + lenguajeProgramacion + " que está gusta mucho");
         System.out.println("Con " + getNivelCreatividad() + " puntos de creatividad, miren esta maravilla:");
         System.out.println("Abre la laptop y ejecuta el código");
-        System.out.println("¿Vieron esa interfaz tan chévere? El algoritmo está muy fino");
-        System.out.println("Esta app va a estar muy trending, se los juro");
+        System.out.println("vieron la interfaz de mi pagina ");
+        System.out.println("Esta app va a estar muy buena");
         System.out.println();
     }
 }
@@ -103,8 +103,8 @@ class InventorQuimico extends Inventor {
         System.out.println("Hoy les presento mi experimento de " + tipoExperimento);
         System.out.println("Este experimento tiene " + getNivelCreatividad() + " puntos de creatividad");
         System.out.println("Mezcla cuidadosamente los químicos");
-        System.out.println("¡Uy hermano, miren esa reacción tan brutal!");
-        System.out.println("Esta fórmula está muy dura, va a revolucionar la ciencia");
+        System.out.println(" miren esa reacción tan brutal!");
+        System.out.println("Esta fórmula va a revolucionar la ciencia");
         System.out.println();
     }
 }
@@ -139,4 +139,5 @@ public class feria {
         }
         System.out.println("¡La competencia estuvo muy bacana! Todos los inventores mostraron sus proyectos únicos.");
     }
+
 }
